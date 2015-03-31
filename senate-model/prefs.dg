@@ -1,0 +1,22 @@
+# prefs.dg
+# This file defines the preference object.
+
+Preference = subclass object where
+  __init__ = self owner_id ticket_no candidate_id preference_no ->
+    self.owner_id = owner_id            # unique for party,state combinations
+    self.ticket_no = ticket_no          # used if more than one ticket is recorded, eg HEMP 2013 NSW
+    self.candidate_id = candidate_id    # candidate this preference is for
+    self.preference_no = float preference_no  # used to order candidates
+    self.transfer_multiplyer = 1.0      # this allows votes to be reweighted when a candidate is elected
+    None
+
+  __lt__ = self other -> self.preference_no < other.preference_no
+  __eq__ = self other -> self.preference_no == other.preference_no
+  __gt__ = self other -> self.preference_no > other.preference_no
+  __hash__ = self -> hash self.as_tuple
+  __str__ = self -> str self.as_tuple
+  value = ~> @transfer_multiplyer
+  as_tuple = ~> (@owner_id, @ticket_no, @candidate_id, @preference_no)
+  
+
+
