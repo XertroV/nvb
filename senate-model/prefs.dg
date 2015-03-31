@@ -4,7 +4,7 @@
 Preference = subclass object where
   __init__ = self owner_id ticket_no candidate_id preference_no ->
     self.owner_id = owner_id            # unique for party,state combinations
-    self.ticket_no = ticket_no          # used if more than one ticket is recorded, eg HEMP 2013 NSW
+    self.ticket_no = ticket_no          # used if more than one ticket is recorded, eg NSW2013 HEMP
     self.candidate_id = candidate_id    # candidate this preference is for
     self.preference_no = float preference_no  # used to order candidates
     self.transfer_multiplyer = 1.0      # this allows votes to be reweighted when a candidate is elected
