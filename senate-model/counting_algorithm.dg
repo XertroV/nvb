@@ -77,7 +77,7 @@ run_election = pref_set vote_distribution num_seats ->
         min_votes, worst_candidate = min $ map swap int_results.items!
         mod_prefs pref_struct worst_candidate 1
         log '-- eliminated' worst_candidate 'with' min_votes 'votes'
-  log elected 'candidates elected'
+  elected
         
     
   
