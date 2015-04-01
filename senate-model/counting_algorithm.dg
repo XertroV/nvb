@@ -46,6 +46,10 @@ mod_prefs = pref_struct candidate transfer_mult_mult ->
     pref_struct !! owner !! ticket_no |>.remove pref
   pref_struct
 
+lookup = d key -> if
+  d is None => key
+  otherwise => d !! key
+
 # load all preferences into groups by owner_id, then ticket_no
 # while unfilled seats remain
   # for each ticket_no find the lowest preference
@@ -60,7 +64,7 @@ mod_prefs = pref_struct candidate transfer_mult_mult ->
       # remove any that pref from all tickets
       # debug log
 
-run_election = pref_set vote_distribution num_seats ->
+run_election = pref_set vote_distribution num_seats cand_map: None ->
   pref_struct = generate_preference_structure pref_set
   elected = list!
   quota = floor $ 1 + $ (sum vote_distribution.values!) / $ num_seats + 1
@@ -70,13 +74,13 @@ run_election = pref_set vote_distribution num_seats ->
     max_votes, top_candidate = max $ map swap int_results.items!
     if
       max_votes > quota =>
-        log '!! Elected  ' top_candidate 'with' max_votes 'votes'
+        log '!! Elected   ' (lookup cand_map top_candidate) 'with' max_votes 'votes'
         mod_prefs pref_struct top_candidate ((max_votes - quota) / max_votes)
         elected.append top_candidate
       otherwise =>
         min_votes, worst_candidate = min $ map swap int_results.items!
         mod_prefs pref_struct worst_candidate 1
-        log '-- eliminated' worst_candidate 'with' min_votes 'votes'
+        log '-- eliminated' (lookup cand_map worst_candidate) 'with' min_votes 'votes'
   elected
         
     
