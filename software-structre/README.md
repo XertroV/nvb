@@ -50,6 +50,10 @@ There can be a confirmation and then the tx is broadcast. Each tx uses a single 
 
 obviously some admin needs to be done, like starting the party, creating issues, and approving voters (and the # of votes they have). this can likewise be done through electrum and op-return txs.
 
+### self administraion
+
+user options like 'transfrer vote to new identity' would be useful. As long as each identity is tracked we can do pw resets (as such). also it can transfer admin rights easily too, so we can move to better multisig.
+
 ### vote resolution
 
 How to resolve the vote, thoguh?
@@ -59,5 +63,20 @@ Well, a block explorer can be rigged to record all op_return txs that pass throu
 those op-returns can be downloaded, filtered, and scanned for all NVB op-returns. another client then loads this list and gives resolutions for each issue that is found (and only counting voters that are valid).
 
 in this way previous tech is easily implemented and the list of all NVB votes (invalid and valid alike) can be passed to a program with the sole purpose of figuring things out, avoididng issues of integrating it and trying to display it and stuff like that. all that can come later (see bitcoin and what it started as, etc)
+
+### actual operations
+
+* vote (issue) (0-255) -- (maybe better numbres? 0-100? what makes good numbers? -1, 0, 1?)
+* start party (and declaire administration)
+* (future) select delegate
+* (future) transfer voting rights (always tracked for resets)
+* create issue (admin)
+* (future) modify issue (admin)
+* comment (like 37 bytes)
+* empower identity with votes (admin)
+* (future) de-empower identity (admin)
+
+So 5 functions needed for MVP
+
 
 
