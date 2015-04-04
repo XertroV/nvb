@@ -2,22 +2,32 @@ import '/sys'
 import '/csv'
 import '/counting_algorithm/run_election'
 import '/prefs/Preference'
+import '/prefs/AECPreference'
+import '/nvb/insert_nvb'
+import '/argparse'
 
-# Input: [State	OwnerGroupID	OwnerGroupNm	OwnerTicket	TicketNo	CandidateID	CandidateTicket	Surname	GivenNm	BallotPosition	PartyAb	PartyNm	PreferenceNo] (list)
-from_aec = row ->
-  Preference (row !! 1) (row !! 4) (row !! 5) (row !! 12)
+from_aec = p -> Preference p.owner_id p.ticket_no p.candidate_id p.preference_no
 
 make_reader = csv_filename -> csv.reader $ open csv_filename newline: ''
 
+get_args = ->
+  parser = argparse.ArgumentParser description: "Simulate GVTs in the Australian Senate, with and without NVB"
+  parser.add_argument 'gvts' help: 'AEC format list of preferences/GVTs' type: str
+  parser.add_argument 'fst_pref_votes' help: 'AEC format csv of first preferences by party' type: str
+  parser.add_argument '--nvb' help: 'inserts NVB into simulation' action: 'store_true'
+  parser.parse_args!
+
 main = ->
-  pref_csv_filename = sys.argv !! 1
-  vote_csv_filename = sys.argv !! 2
-  pref_reader = list $ make_reader pref_csv_filename
-  vote_reader = filter (r -> int (r!!11) > 0) $ list $ make_reader vote_csv_filename
-  pref_set = set $ map from_aec pref_reader
-  state_group_map = dict $ map (r -> ((r !! 0, r !! 3), r !! 1)) pref_reader
-  vote_dist = dict $ map (r -> (state_group_map !! (r !! 0, r !! 1), int $ r !! 11)) vote_reader
-  candidate_id_name_map = dict $ set $ map (r -> (r !! 5, r !! 8 + ' ' + r !! 7)) pref_reader
+  args = get_args!
+  pref_csv_filename = args.gvts
+  vote_csv_filename = args.fst_pref_votes
+  pref_list = list $ make_reader pref_csv_filename
+  vote_list = filter (r -> int (r!!11) > 0) $ list $ make_reader vote_csv_filename
+  args.nvb => insert_nvb pref_list vote_list
+  pref_set = set $ map from_aec $ map AECPreference pref_list
+  state_group_map = dict $ map (r -> ((r !! 0, r !! 3), r !! 1)) pref_list
+  vote_dist = dict $ map (r -> (state_group_map !! (r !! 0, r !! 1), int $ r !! 11)) vote_list
+  candidate_id_name_map = dict $ set $ map (r -> (r !! 5, r !! 8 + ' ' + r !! 7)) pref_list
   elected = run_election pref_set vote_dist 6 cand_map: candidate_id_name_map
   print 'Elected:' (list $ enumerate $ list $ map (candidate_id -> candidate_id_name_map !! candidate_id) elected)
 if __name__ == "__main__" => main!
