@@ -4,7 +4,7 @@ import '/counting_algorithm/run_election'
 import '/prefs/Preference'
 import '/prefs/AECPreference'
 import '/votes/FirstPrefVote'
-#import '/check/check_pref_list'
+#import '/check/check_aec_pref_list'
 #import '/check/check_vote_list'
 import '/nvb/insert_nvb'
 import '/argparse'
@@ -24,13 +24,13 @@ main = ->
   args = get_args!
   pref_csv_filename = args.gvts
   vote_csv_filename = args.fst_pref_votes
-  pref_list = list $ make_reader pref_csv_filename
-  vote_list = filter (r -> int (r!!11) > 0) $ list $ map FirstPrefVote $ make_reader vote_csv_filename
-  args.nvb => insert_nvb pref_list vote_list
-  pref_set = set $ map from_aec $ map AECPreference pref_list
-  state_group_map = dict $ map (r -> ((r !! 0, r !! 3), r !! 1)) pref_list
-  vote_dist = dict $ map (r -> (state_group_map !! (r !! 0, r !! 1), int $ r !! 11)) vote_list
-  candidate_id_name_map = dict $ map (r -> (r !! 5, r !! 8 + ' ' + r !! 7)) pref_list
+  aec_pref_list = list $ map AECPreference $ make_reader pref_csv_filename
+  vote_list = filter (v -> v.votes > 0) $ list $ map FirstPrefVote.from_aec $ make_reader vote_csv_filename
+  args.nvb => insert_nvb aec_pref_list vote_list
+  pref_set = set $ map from_aec $ aec_pref_list
+  state_group_map = dict $ map (p -> ((p.state, p.owner_ticket), p.owner_id)) aec_pref_list
+  vote_dist = dict $ map (v -> (state_group_map !! (v.state_ab, v.ticket), v.votes)) vote_list
+  candidate_id_name_map = dict $ map (p -> (p.candidate_id, p.candidate_firstname + ' ' + p.candidate_surname)) aec_pref_list
   elected = run_election pref_set vote_dist 6 cand_map: candidate_id_name_map
   print 'Elected:' (list $ enumerate $ list $ map (candidate_id -> candidate_id_name_map !! candidate_id) elected)
 if __name__ == "__main__" => main!

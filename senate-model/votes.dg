@@ -1,2 +1,9 @@
 FirstPrefVote = subclass object where
+  # StateAb	Ticket	CandidateID	BallotPosition	CandidateDetails	PartyName	OrdinaryVotes	AbsentVotes	ProvisionalVotes	PrePollVotes	PostalVotes	TotalVotes
+  __init__ = self state_ab ticket votes ->
+    self.state_ab = state_ab
+    self.ticket   = ticket
+    self.votes    = int votes
+    None
   
+  from_aec = classmethod $ cls row -> cls (row !! 0) (row !! 1) (row !! 11)
