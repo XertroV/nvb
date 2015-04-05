@@ -9,8 +9,6 @@ import '/votes/FirstPrefVote'
 import '/nvb/insert_nvb'
 import '/argparse'
 
-from_aec = p -> Preference p.owner_id p.ticket_no p.candidate_id p.preference_no
-
 make_reader = csv_filename -> csv.reader $ open csv_filename newline: ''
 
 get_args = ->
@@ -25,9 +23,9 @@ main = ->
   pref_csv_filename = args.gvts
   vote_csv_filename = args.fst_pref_votes
   aec_pref_list = list $ map AECPreference $ make_reader pref_csv_filename
-  vote_list = filter (v -> v.votes > 0) $ list $ map FirstPrefVote.from_aec $ make_reader vote_csv_filename
+  vote_list = list $ filter (v -> v.votes > 0) $ map FirstPrefVote.from_aec $ make_reader vote_csv_filename
   args.nvb => insert_nvb aec_pref_list vote_list
-  pref_set = set $ map from_aec $ aec_pref_list
+  pref_set = set $ map Preference.from_aec $ aec_pref_list
   state_group_map = dict $ map (p -> ((p.state, p.owner_ticket), p.owner_id)) aec_pref_list
   vote_dist = dict $ map (v -> (state_group_map !! (v.state_ab, v.ticket), v.votes)) vote_list
   candidate_id_name_map = dict $ map (p -> (p.candidate_id, p.candidate_firstname + ' ' + p.candidate_surname)) aec_pref_list

@@ -18,6 +18,9 @@ AECPreference = subclass object where
     self.preference_no        = row !! 12
     None
 
+  from_simple = classmethod $ cls state owner_id owner_ticket ticket_no candidate_id surname firstname pref_no ->
+    cls $ (state, owner_id, '', owner_ticket, ticket_no, candidate_id, '', surname, firstname, '', '', '', pref_no)
+
 Preference = subclass object where
   __init__ = self owner_id ticket_no candidate_id preference_no ->
     self.owner_id = owner_id            # unique for party,state combinations
@@ -35,5 +38,6 @@ Preference = subclass object where
   value = ~> @transfer_multiplyer
   as_tuple = ~> (@owner_id, @ticket_no, @candidate_id, @preference_no)
   
+  from_aec = classmethod $ cls p -> cls p.owner_id p.ticket_no p.candidate_id p.preference_no
 
 

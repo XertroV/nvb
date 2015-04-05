@@ -6,4 +6,6 @@ FirstPrefVote = subclass object where
     self.votes    = int votes
     None
   
+  __str__ = self -> "<%s instance; State: %s, Ticket: %s, Votes %d>" % (self.__class__.__name__, self.state_ab, self.ticket, self.votes)
+
   from_aec = classmethod $ cls row -> cls (row !! 0) (row !! 1) (row !! 11)
