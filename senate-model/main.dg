@@ -16,19 +16,23 @@ get_args = ->
   parser.add_argument 'gvts' help: 'AEC format list of preferences/GVTs' type: str
   parser.add_argument 'fst_pref_votes' help: 'AEC format csv of first preferences by party' type: str
   parser.add_argument '--nvb' help: 'inserts NVB into simulation' action: 'store_true'
+  parser.add_argument '--pc-yes' help: 'specify percentage support for NVB, default: 100.0' type: float default: 100.0
+  parser.add_argument '--loop' help: 'set number of times to repeat experiment, default: 1' type: int default: 1
+  parser.add_argument '--summary' help: 'hide most detail and only provide election results' action: 'store_true'
   parser.parse_args!
 
 main = ->
   args = get_args!
   pref_csv_filename = args.gvts
   vote_csv_filename = args.fst_pref_votes
-  aec_pref_list = list $ map AECPreference $ make_reader pref_csv_filename
-  vote_list = list $ filter (v -> v.votes > 0) $ map FirstPrefVote.from_aec $ make_reader vote_csv_filename
-  args.nvb => insert_nvb aec_pref_list vote_list
-  pref_set = set $ map Preference.from_aec $ aec_pref_list
-  state_group_map = dict $ map (p -> ((p.state, p.owner_ticket), p.owner_id)) aec_pref_list
-  vote_dist = dict $ map (v -> (state_group_map !! (v.state_ab, v.ticket), v.votes)) vote_list
-  candidate_id_name_map = dict $ map (p -> (p.candidate_id, p.candidate_firstname + ' ' + p.candidate_surname)) aec_pref_list
-  elected = run_election pref_set vote_dist 6 cand_map: candidate_id_name_map
-  print 'Elected:' (list $ enumerate $ list $ map (candidate_id -> candidate_id_name_map !! candidate_id) elected)
+  for i in range args.loop =>
+      aec_pref_list = list $ map AECPreference $ make_reader pref_csv_filename
+      vote_list = list $ filter (v -> v.votes > 0) $ map FirstPrefVote.from_aec $ make_reader vote_csv_filename
+      args.nvb => insert_nvb aec_pref_list vote_list pc_yes: args.pc_yes
+      pref_set = set $ map Preference.from_aec $ aec_pref_list
+      state_group_map = dict $ map (p -> ((p.state, p.owner_ticket), p.owner_id)) aec_pref_list
+      vote_dist = dict $ map (v -> (state_group_map !! (v.state_ab, v.ticket), v.votes)) vote_list
+      candidate_id_name_map = dict $ map (p -> (p.candidate_id, p.candidate_firstname + ' ' + p.candidate_surname)) aec_pref_list
+      elected = run_election pref_set vote_dist 6 cand_map: candidate_id_name_map summary: args.summary
+      print 'Elected:' (list $ enumerate $ list $ map (candidate_id -> candidate_id_name_map !! candidate_id) elected)
 if __name__ == "__main__" => main!

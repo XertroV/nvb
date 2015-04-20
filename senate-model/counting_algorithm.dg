@@ -64,7 +64,7 @@ lookup = d key -> if
       # remove any that pref from all tickets
       # debug log
 
-run_election = pref_set vote_distribution num_seats cand_map: None ->
+run_election = pref_set vote_distribution num_seats cand_map: None summary: False ->
   pref_struct = generate_preference_structure pref_set
   elected = list!
   quota = floor $ 1 + $ (sum vote_distribution.values!) / $ num_seats + 1
@@ -74,13 +74,13 @@ run_election = pref_set vote_distribution num_seats cand_map: None ->
     max_votes, top_candidate = max $ map swap int_results.items!
     if
       max_votes > quota =>
-        log '!! Elected   ' (lookup cand_map top_candidate) 'with' max_votes 'votes'
+        not summary => log '!! Elected   ' (lookup cand_map top_candidate) 'with' max_votes 'votes'
         mod_prefs pref_struct top_candidate ((max_votes - quota) / max_votes)
         elected.append top_candidate
       otherwise =>
         min_votes, worst_candidate = min $ map swap int_results.items!
         mod_prefs pref_struct worst_candidate 1
-        log '-- eliminated' (lookup cand_map worst_candidate) 'with' min_votes 'votes'
+        not summary => log '-- eliminated' (lookup cand_map worst_candidate) 'with' min_votes 'votes'
   elected
         
     
