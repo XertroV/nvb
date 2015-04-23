@@ -78,7 +78,9 @@ run_election = pref_set vote_distribution num_seats cand_map: None summary: Fals
         mod_prefs pref_struct top_candidate ((max_votes - quota) / max_votes)
         elected.append top_candidate
       otherwise =>
-        min_votes, worst_candidate = min $ map swap int_results.items!
+        except err => min_votes, worst_candidate = min $ map swap int_results.items!
+               err :: Exception => print err int_results
+               finally => err :: Exception => raise err
         mod_prefs pref_struct worst_candidate 1
         not summary => log '-- eliminated' (lookup cand_map worst_candidate) 'with' min_votes 'votes'
   elected
