@@ -6,7 +6,7 @@ party_ab = 'NVB'
 nvb_owner_id = 99999
 num_nvb_cands = 2
 
-gen_candidate_id = n -> 199999-n
+gen_candidate_id = n -> str $ 199999-n
 
 # insert_nvb should insert the NVB into the preference structure.
 # primary_vote_ratio determines what % of people voted first preference for nvb
