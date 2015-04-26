@@ -1,4 +1,4 @@
-N=1000
+N=$1
 
 function runmain {
     file=$1
