@@ -3,8 +3,10 @@ import '/prefs/AECPreference'
 import '/random'
 
 party_ab = 'NVB'
+party_name = 'Neutral Voting Bloc'
 nvb_owner_id = 99999
 num_nvb_cands = 2
+name_prefix = '██NVB'
 
 gen_candidate_id = n -> str $ 199999-n
 
@@ -18,7 +20,7 @@ insert_nvb = aec_pref_list vote_list primary_vote_ratio: 0.01 preferenced_always
   #   from_simple = classmethod $ cls state owner_id owner_ticket ticket_no candidate_id surname firstname pref_no ->
 
   # NVB GVT add NVB cand.s
-  nvb_pref_list = list $ map (n -> AECPreference.from_simple state_ab nvb_owner_id party_ab '1' (gen_candidate_id n) (str n) '@@NVB' n) (range num_nvb_cands)
+  nvb_pref_list = list $ map (n -> AECPreference.from_simple state_ab nvb_owner_id party_ab '1' (gen_candidate_id n) (str n) name_prefix n owner_name: party_name) (range num_nvb_cands)
 
   candidate_set = set $ map (p -> (p.candidate_id, p.candidate_surname, p.candidate_firstname)) aec_pref_list
   gvt_length = len candidate_set
@@ -32,7 +34,7 @@ insert_nvb = aec_pref_list vote_list primary_vote_ratio: 0.01 preferenced_always
     half_participation             => max 3.1 $ gvt_length * random.random!
     otherwise                      => gvt_length + 1
   for n in range num_nvb_cands =>
-    nvb_pref_list.extend $ list $ map (t -> AECPreference.from_simple state_ab (t!!0) (t!!1) (t!!2) (gen_candidate_id n) (str n) '@@NVB' $ pref_no n: n) $ set $ map (p -> (p.owner_id, p.owner_ticket, p.ticket_no)) aec_pref_list
+    nvb_pref_list.extend $ list $ map (t -> AECPreference.from_simple state_ab (t!!0) (t!!1) (t!!2) (gen_candidate_id n) (str n) name_prefix $ pref_no n: n) $ set $ map (p -> (p.owner_id, p.owner_ticket, p.ticket_no)) aec_pref_list
 
   vote_list.append $ FirstPrefVote state_ab party_ab (int $ primary_vote_ratio * $ sum $ map (v -> v.votes) vote_list)
   aec_pref_list.extend nvb_pref_list

@@ -18,8 +18,10 @@ AECPreference = subclass object where
     self.preference_no        = row !! 12
     None
 
-  from_simple = classmethod $ cls state owner_id owner_ticket ticket_no candidate_id surname firstname pref_no ->
-    cls $ (state, owner_id, '', owner_ticket, ticket_no, candidate_id, '', surname, firstname, '', '', '', pref_no)
+  from_simple = classmethod $ cls state owner_id owner_ticket ticket_no candidate_id surname firstname pref_no owner_name: '' ->
+    cls $ (state, owner_id, owner_name, owner_ticket, ticket_no, candidate_id, '', surname, firstname, '', '', '', pref_no)
+
+  __repr__ = self -> "<AECPreference %s>" % (self.owner_name,)
 
 Preference = subclass object where
   __init__ = self owner_id ticket_no candidate_id preference_no ->

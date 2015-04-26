@@ -3,6 +3,8 @@
 import '/collections/defaultdict'
 import '/math/floor'
 
+cand_marker = '██'
+
 log = *: args **: kwargs -> print *: args **: kwargs
 
 swap = t -> (snd t, fst t)
@@ -22,6 +24,7 @@ lowest_preference_by_ticket = pref_struct ->
       results_dictionary !! owner_id !! ticket_no = min pref_set
   results_dictionary
 
+# generate interim results: {cand. id: votes,...}
 gen_int_results_table = low_pref_struct owner_votes ->
   results_table = defaultdict (-> 0)  
   for (owner_id, tickets) in low_pref_struct.items! =>
@@ -29,6 +32,16 @@ gen_int_results_table = low_pref_struct owner_votes ->
     for (ticket_no, pref) in tickets.items! =>
       results_table !! pref.candidate_id += each_ticket_n_votes * pref.value
   results_table
+
+
+preferencers = for_cand low_pref_struct vote_dist ->
+  results = dict!
+  for (owner_id, tickets) in low_pref_struct.items! =>
+    each_ticket_n_votes = vote_dist !! owner_id / $ len tickets
+    for (ticket_no, pref) in tickets.items! =>
+      pref.candidate_id == for_cand => results !! pref.owner_id = each_ticket_n_votes * pref.value
+  results
+
 
 
 # when someone is elected or eliminated
@@ -64,7 +77,11 @@ lookup = d key -> if
       # remove any that pref from all tickets
       # debug log
 
-run_election = pref_set vote_distribution num_seats cand_map: None summary: False ->
+sort = l ->
+    l.sort!
+    l
+
+run_election = pref_set vote_distribution num_seats cand_map: None summary: False show_preferencers: False owner_id_map: {} ->
   pref_struct = generate_preference_structure pref_set
   elected = list!
   quota = floor $ 1 + $ (sum vote_distribution.values!) / $ num_seats + 1
@@ -75,15 +92,14 @@ run_election = pref_set vote_distribution num_seats cand_map: None summary: Fals
     if
       max_votes > quota =>
         not summary => log '!! Elected   ' (lookup cand_map top_candidate) 'with' max_votes 'votes'
+        show_preferencers => print $ sort $ list $ map (t -> (lookup owner_id_map $ fst t, snd t)) (preferencers top_candidate low_pref_struct vote_distribution).items!
         mod_prefs pref_struct top_candidate ((max_votes - quota) / max_votes)
         elected.append top_candidate
       otherwise =>
-        except err => min_votes, worst_candidate = min $ map swap int_results.items!
-               err :: Exception => print err int_results
-               finally => err :: Exception => raise err
+        min_votes, worst_candidate = min $ map swap int_results.items!
         mod_prefs pref_struct worst_candidate 1
         not summary => log '-- eliminated' (lookup cand_map worst_candidate) 'with' min_votes 'votes'
-  elected
+  elected, (gen_int_results_table (lowest_preference_by_ticket pref_struct) vote_distribution)
         
     
   
