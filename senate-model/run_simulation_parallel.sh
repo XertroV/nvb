@@ -14,7 +14,7 @@ function runmain {
     pc=$2
     state=$3
     echo "Started: $state-$pc"
-    python -m dg main.dg --summary --loop $N --pc-yes $pc --nvb --half-participation $state-gvts.csv $state-first-prefs.csv >> $file
+    python3 -m dg main.dg --summary --loop $N --pc-yes $pc --nvb --half-participation $state-gvts.csv $state-first-prefs.csv >> $file
     echo `cat $file | grep NVB | wc -l` ",$N,$state,$pc%" >> all.results
     echo "Finished: $state-$pc"
 }
@@ -29,6 +29,10 @@ for state in NSW VIC TAS WA SA QLD
     runmain $file $pc $state &
   done
 done
+
+echo ""
+echo "[[This takes a long time if you've opted to run many trials]]"
+echo ""
 
 wait
 
