@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 from collections import defaultdict
 
@@ -22,7 +23,7 @@ s_list = list(table.keys())
 p_list = list(particips)
 p_list.sort()
 
-print(table)
+# print(table)
 
 print('', sep=',', *s_list)
   
