@@ -25,10 +25,10 @@ lowest_preference_by_ticket = pref_struct ->
   results_dictionary
 
 # generate interim results: {cand. id: votes,...}
-gen_int_results_table = low_pref_struct owner_votes ->
+gen_int_results_table = low_pref_struct vote_dist ->
   results_table = defaultdict (-> 0)  
   for (owner_id, tickets) in low_pref_struct.items! =>
-    each_ticket_n_votes = owner_votes !! owner_id / $ len tickets
+    each_ticket_n_votes = if (owner_id in vote_dist => vote_dist !! owner_id / $ len tickets) (otherwise => 0)
     for (ticket_no, pref) in tickets.items! =>
       results_table !! pref.candidate_id += each_ticket_n_votes * pref.value
   results_table
