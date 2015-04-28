@@ -6,8 +6,8 @@ fi
 
 N=$1
 year=$2
-halfpartic="--half-participation"
-#halfpartic=""
+#halfpartic="--half-participation"
+halfpartic=""
 
 echo "Starting NVB Simulation, $N trials per data-point"
 echo ""
