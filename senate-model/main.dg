@@ -24,6 +24,7 @@ get_args = ->
   parser.add_argument '--half-participation' help: 'Instead of last, non-participating parties preference the NVB randomly' action: 'store_true'
   parser.add_argument '--profile' help: 'run profiler' action: 'store_true'
   parser.add_argument '--sp' help: 'show preferencers when someone is elected' action: 'store_true'
+  parser.add_argument '--parties' help: 'show parties, not candidate names. unimplemented.' action: 'store_true'
   parser.parse_args!
 
 main = ->
