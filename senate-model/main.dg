@@ -25,6 +25,8 @@ get_args = ->
   parser.add_argument '--profile' help: 'run profiler' action: 'store_true'
   parser.add_argument '--sp' help: 'show preferencers when someone is elected' action: 'store_true'
   parser.add_argument '--parties' help: 'show parties, not candidate names. unimplemented.' action: 'store_true'
+  # default is 3.1 as this is at least after every parties own candidates, and often one from another party
+  parser.add_argument '--min-preference' help: 'set a minimum on how early NVB will be preferenced. Equiv to numbering below the line in AEC elections; floats accepted, eg 3.5' type: float default: 3.1
   parser.parse_args!
 
 main = ->
@@ -35,7 +37,7 @@ main = ->
       for i in range args.loop =>
           aec_pref_list = list $ map AECPreference $ make_reader pref_csv_filename
           vote_list = list $ filter (v -> v.votes > 0) $ map FirstPrefVote.from_aec $ make_reader vote_csv_filename
-          args.nvb => insert_nvb aec_pref_list vote_list pc_yes: args.pc_yes primary_vote_ratio: args.first_pref_ratio half_participation: args.half_participation
+          args.nvb => insert_nvb aec_pref_list vote_list pc_yes: args.pc_yes primary_vote_ratio: args.first_pref_ratio half_participation: args.half_participation preferenced_always_as: args.min_preference
           pref_set = set $ map Preference.from_aec $ aec_pref_list
           state_group_map = dict $ map (p -> ((p.state, p.owner_ticket), p.owner_id)) aec_pref_list
           vote_dist = dict $ map (v -> (state_group_map !! (v.state_ab, v.ticket), v.votes)) vote_list
