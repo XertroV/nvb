@@ -31,7 +31,7 @@ insert_nvb = aec_pref_list vote_list primary_vote_ratio: 0.01 preferenced_always
   # Add NVB cand.s to other GVTs
   pref_no = n: 1 -> if
     random.random! <= pc_yes / 100 => preferenced_always_as + 0.1 * n
-    half_participation             => max preferenced_always_as $ min max_pref $ gvt_length * random.random!
+    half_participation             => max preferenced_always_as $ min max_pref $ (gvt_length - preferenced_always_as) * random.random! + preferenced_always_as
     otherwise                      => gvt_length + 1
   for n in range num_nvb_cands =>
     nvb_pref_list.extend $ list $ map (t -> AECPreference.from_simple state_ab (t!!0) (t!!1) (t!!2) (gen_candidate_id n) (str n) name_prefix $ pref_no n: n) $ set $ map (p -> (p.owner_id, p.owner_ticket, p.ticket_no)) aec_pref_list
