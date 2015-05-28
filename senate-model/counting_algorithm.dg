@@ -23,7 +23,7 @@ lowest_preference_by_ticket = pref_struct ->
     for (ticket_no, pref_set) in tickets.items! =>
       if
         len pref_set > 0 => results_dictionary !! owner_id !! ticket_no = min pref_set
-        otherwise        => raise $ Exception $ 'Pref Set Empty ' + owner_id + ' ' + 'ticket_no' + ' ' + str(pref_set)
+        otherwise        => print $ Exception $ 'Pref Set Empty, owner_id:' + owner_id + ', pref_set:' + str(pref_set) + ', '
   results_dictionary
 
 # generate interim results: {cand. id: votes,...}

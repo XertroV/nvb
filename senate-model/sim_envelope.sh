@@ -6,16 +6,21 @@ fi
 
 start_timestamp=`date +%s`
 
-trial="4th"  # only preferenced 4th and below. Participation measures % of 4th preferences. The rest are random.
+trial="envelope"  # best case
 
 N=$1
 year=$2
 hp="--half-participation"
 #hp=""
+minpref=6.1
+maxpref=20.1
+
+echo "starting $trial for $year with $N samples" >> img_timestats
+echo "$start_timestamp" >> img_timestats
 
 echo "Starting NVB Simulation, $N trials per data-point"
 echo ""
-echo "Using as half participation flag: '$halfpartic'"
+echo "Using as half participation flag: '$hp'"
 
 function resultsname {
   # generate name of results file
@@ -31,10 +36,8 @@ function runmain {
     state=$3
     year=$4
     fpr=$5
-    minpref=6.1
     echo "Started: $state-$pc"
-    # min-pref 6.1, halfpartic true, fpr 0.01
-    python3 -m dg main.dg --summary --loop $N --pc-yes $pc --first-pref-ratio $fpr --nvb $hp --min-preference $minpref "$year/$state-gvts.csv" "$year/$state-first-prefs.csv" >> $file
+    python3 -m dg main.dg --summary --loop $N --pc-yes $pc --first-pref-ratio $fpr --nvb $hp --min-preference $minpref --max-preference $maxpref "$year/$state-gvts.csv" "$year/$state-first-prefs.csv" >> $file
     echo `cat $file | grep NVB | wc -l` ",$N,$state,$pc%" >> `resultsname $year $fpr`
     echo "Finished: $state-$pc-$fpr"
 }
@@ -50,7 +53,7 @@ fprlist=(0.005 0.01 0.02 0.03 0.05)
 for fpr in ${fprlist[*]}; do
   for state in TAS SA NSW VIC WA QLD; do
     for pc in 05 15 25 35 45 55 65 75 85 95; do
-      file="$year/results-sim-4th-party-and-worse-$state-$pc-$fpr.txt"
+      file="$year/results-sim-$trial-$state-$pc-$fpr.txt"
       echo $file
       rm $file &>/dev/null
       runmain $file $pc $state $year $fpr &
@@ -84,7 +87,7 @@ for fpr in ${fprlist[*]}; do
   
   set xlabel 'Participation %'
   set ylabel 'P(Win 1 Seat)'
-  set title 'Partic. v P(Success); fpr $fpr; year $year; trial $trial; N $N;'
+  set title 'Partic. v P(Success), {/*0.5 params: fpr $fpr; year $year; trial $trial; N $N; minpref $minpref; maxpref $maxpref;}'
   
   plot for [col=2:7] '$tname' using 1:col with linespoints ls 1 lc col pt col ps 1" | gnuplot
   echo "Plotted $iname"
@@ -94,4 +97,5 @@ done
 end_timestamp=`date +%s`
 
 echo "COMPLETE"
-echo "Duration " `eval $end_timestamp - $start_timestamp` " seconds"
+echo "$end_timestamp" >> img_timestats
+echo "Duration " "`eval $end_timestamp - $start_timestamp`" " seconds"

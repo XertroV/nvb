@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 import sys
 from collections import defaultdict
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--spaces', help='Use spaces instead of commas as a delimiter', action='store_true')
+args = parser.parse_args()
 
 rows = []
 
 for l in sys.stdin.readlines():
   if len(l) > 0:
     rows.append(l[:-1].split(','))
+
+for l in rows:
+  if l[3] == "5%":
+    l[3] = "05%"
 
 states = set(map(lambda l: l[2], rows))
 particips = set(map(lambda l: l[3], rows))
@@ -21,11 +30,14 @@ for l in rows:
 
 s_list = list(table.keys())
 p_list = list(particips)
+s_list.sort()
 p_list.sort()
 
 # print(table)
 
-print('', sep=',', *s_list)
+sep = ' ' if args.spaces else ','
+
+print('_', sep=sep, *s_list)
   
 for p in p_list:
-  print(p, sep=',', *map(lambda s: table[s][p], s_list))
+  print(p[:-1], sep=sep, *map(lambda s: table[s][p], s_list))  # cut % off from p
