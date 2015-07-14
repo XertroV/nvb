@@ -1,6 +1,6 @@
 echo "checking admin..."
 If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
-{   
+{
 $arguments = "& '" + $myinvocation.mycommand.definition + "'"
 Start-Process powershell -Verb runAs -ArgumentList $arguments -WorkingDirectory (Get-Item -Path ".\" -Verbose).FullName
 Break
@@ -41,12 +41,14 @@ $zips=@(
 	)
 
 foreach($arr in $zips) {
-    echo "!! Downloading and installing $($arr[1])"
+  echo "!! Downloading and installing $($arr[1])"
 	wget $arr[0] -OutFile $($arr[1]+".zip")
-	[io.compression.zipfile]::ExtractToDirectory(".\"+$arr[1]+".zip",".\")
-	cd $arr[1]
-	python setup.py install
-	cd ".."
+  echo $("!! " + $pwd.ToString()+"\"+$($arr[1])+".zip")
+	[io.compression.zipfile]::ExtractToDirectory($($pwd.ToString()+"\"+$($arr[1])+".zip"),$($pwd.ToString() + "\"))
+	cd $arr[1] ; if ($?) {
+    python setup.py install
+    cd ".."
+  }
 	rm $($arr[1]+".zip")
 }
 
