@@ -13,6 +13,16 @@ draft: true
 
 * [Definitions](#definitions)
 
+# ToDo
+
+* more on decision making
+* office bearers
+* keeping of accounts
+* state and territory branches
+* endorsing candidates procedure
+* commencement
+* interpretation?
+
 # Objectives
 
 The NVB has the following core objectives:
