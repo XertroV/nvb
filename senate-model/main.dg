@@ -28,6 +28,8 @@ get_args = ->
   # default is 3.1 as this is at least after every parties own candidates, and often one from another party
   parser.add_argument '--min-preference' help: 'set a minimum on how early NVB will be preferenced. Equiv to numbering below the line in AEC elections; floats accepted, eg 3.5' type: float default: 3.1
   parser.add_argument '--max-preference' help: 'set a maximum on how late the NVB will be preferenced.' type: float default: 200000000
+  parser.add_argument '--new-fpr-party-id' help: 'party id of party to alter fpr, eg 25203 for MEP, use with --new-fpr' type: str default: None
+  parser.add_argument '--new-fpr' help: 'set new fpr for some party, use with --new-fpr-party-id' type: str default: None
   parser.parse_args!
 
 main = ->
@@ -36,7 +38,12 @@ main = ->
       pref_csv_filename = args.gvts
       vote_csv_filename = args.fst_pref_votes
       aec_pref_list_master = list $ map AECPreference $ make_reader pref_csv_filename
-      vote_list_master = list $ filter (v -> v.votes > 0) $ map FirstPrefVote.from_aec $ make_reader vote_csv_filename
+      first_prefs_csv = if
+          args.new_fpr => map (v ->
+              v !! 2 == args.new_fpr_party_id => v !! 11 = args.new_fpr
+              v) $ make_reader vote_csv_filename
+          otherwise => make_reader vote_csv_filename
+      vote_list_master = list $ filter (v -> v.votes > 0) $ map FirstPrefVote.from_aec first_prefs_csv
       for i in range args.loop =>
           aec_pref_list = list $ aec_pref_list_master
           vote_list = list $ vote_list_master

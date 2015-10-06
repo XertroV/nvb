@@ -1,3 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+./sim_lib.sh "ENV_PESSIMISTIC" "1" "2013" '--summary --nvb --min-preference 6.1 --max-preference 20.1'
+
+exit
+
+
 if [ $# -lt 2 ]
   then
     echo "Useage: run_simulation_parallel.sh TRIALS_N YEAR"
